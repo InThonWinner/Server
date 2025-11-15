@@ -8,6 +8,7 @@ import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PortfolioModule } from './portfolio/portfolio.module';
     AuthModule,
     UserModule,
     PortfolioModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
