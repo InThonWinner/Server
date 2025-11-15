@@ -33,7 +33,12 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerDocumentBuilder);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      // Keep Authorization after page refresh
+      persistAuthorization: true,
+    },
+  });
 
   // Cloud Run은 PORT 환경 변수를 자동으로 설정합니다
   const port = process.env.PORT || configService.get<number>('port', 3000);
