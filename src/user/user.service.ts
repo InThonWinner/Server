@@ -29,8 +29,6 @@ export class UserService {
       throw new BadRequestException('이미 존재하는 이메일입니다.');
     }
 
-    console.log('registerDto:', registerDto);
-
     // 비밀번호 해싱
     const passwordHash = await this.authService.hashPassword(
       registerDto.password,
@@ -52,8 +50,6 @@ export class UserService {
       },
     });
 
-    console.log('user:', user);
-
     try {
       // 인증 이미지 업로드
       const imageUrl = await this.supabaseStorage.uploadVerificationImage(
@@ -66,8 +62,6 @@ export class UserService {
         where: { id: user.id },
         data: { verificationImageUrl: imageUrl },
       });
-
-      console.log('imageUrl:', imageUrl);
 
       return {
         userId: user.id,

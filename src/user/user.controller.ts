@@ -27,11 +27,14 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '@prisma/client';
+import { PortfolioService } from 'src/portfolio/portfolio.service';
 
 @ApiTags('User')
 @Controller('api/user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService,
+              private readonly portfolioService: PortfolioService
+  ) {}
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -76,6 +79,9 @@ export class UserController {
     }
 
     const data = await this.userService.register(registerDto, verificationImage);
+
+    await this.portfolioService.create(data.userId);
+
     return {
       success: true,
       message: '회원가입이 완료되었습니다. 관리자 승인 후 서비스를 이용하실 수 있습니다.',
