@@ -15,10 +15,12 @@ import { UpdateTechStackDto } from './dto/update-tech-stack.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
 import { UpdateProjectsDto } from './dto/update-projects.dto';
 import { UpdateActivitiesAwardsDto } from './dto/update-activities-awards.dto';
-import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { ApiOperation, ApiBearerAuth, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { User } from '@prisma/client';
+import { UpdateDisplayNameDto } from './dto/update-displayname.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
+import { UpdateAffiliationDto } from './dto/update-affiliation.dto';
 
 @Controller('portfolio')
 export class PortfolioController {
@@ -110,17 +112,45 @@ export class PortfolioController {
     return this.portfolioService.updateActivitiesAwards(req.user.id, dto);
   }
 
-  @Patch('settings')
+  @Patch('display-name')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Update settings', description: 'Update your own portfolio settings. Requires authentication.' })
-  @ApiBody({ type: UpdateSettingsDto })
-  @ApiResponse({ status: 200, description: 'Settings updated successfully' })
+  @ApiOperation({ summary: 'Update display name', description: 'Update display name type. Requires authentication.' })
+  @ApiBody({ type: UpdateDisplayNameDto })
+  @ApiResponse({ status: 200, description: 'Display name updated successfully' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  updateSettings(
-    @Body() dto: UpdateSettingsDto,
+  updateDisplayName(
+    @Body() dto: UpdateDisplayNameDto,
     @Req() req: Request & { user: User },
   ) {
-    return this.portfolioService.updateSettings(req.user.id, dto);
+    return this.portfolioService.updateDisplayName(req.user.id, dto);
+  }
+
+  @Patch('contact')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update contact information', description: 'Update contact information and visibility. Requires authentication.' })
+  @ApiBody({ type: UpdateContactDto })
+  @ApiResponse({ status: 200, description: 'Contact updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  updateContact(
+    @Body() dto: UpdateContactDto,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.portfolioService.updateContact(req.user.id, dto);
+  }
+
+  @Patch('affiliation')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Update affiliation', description: 'Update affiliation information and visibility. Requires authentication.' })
+  @ApiBody({ type: UpdateAffiliationDto })
+  @ApiResponse({ status: 200, description: 'Affiliation updated successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  updateAffiliation(
+    @Body() dto: UpdateAffiliationDto,
+    @Req() req: Request & { user: User },
+  ) {
+    return this.portfolioService.updateAffiliation(req.user.id, dto);
   }
 }
