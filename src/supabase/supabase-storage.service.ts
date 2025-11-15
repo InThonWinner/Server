@@ -10,18 +10,18 @@ export class SupabaseStorageService {
 
   constructor(private configService: ConfigService) {
     // 환경 변수 직접 확인 (디버깅용)
-    console.log('=== 환경 변수 디버깅 ===');
-    console.log('process.env.SUPABASE_URL:', process.env.SUPABASE_URL);
-    console.log('process.env.SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
+    // console.log('=== 환경 변수 디버깅 ===');
+    // console.log('process.env.SUPABASE_URL:', process.env.SUPABASE_URL);
+    // console.log('process.env.SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY);
     
     const supabaseUrl = this.configService.get<string>('supabase.url');
     const supabaseServiceRoleKey = this.configService.get<string>('supabase.serviceRoleKey');
     this.bucketName = this.configService.get<string>('supabase.bucketName') || 'auth-image';
 
-    console.log('ConfigService에서 가져온 supabase.url:', supabaseUrl);
-    console.log('ConfigService에서 가져온 supabase.serviceRoleKey:', supabaseServiceRoleKey);
-    console.log('bucketName:', this.bucketName);
-    console.log('======================');
+    // console.log('ConfigService에서 가져온 supabase.url:', supabaseUrl);
+    // console.log('ConfigService에서 가져온 supabase.serviceRoleKey:', supabaseServiceRoleKey);
+    // console.log('bucketName:', this.bucketName);
+    // console.log('======================');
 
     if (!supabaseUrl || supabaseUrl === '') {
       throw new Error(
@@ -36,7 +36,7 @@ export class SupabaseStorageService {
     }
 
     this.supabaseClient = createClient(supabaseUrl, supabaseServiceRoleKey);
-    console.log('supabaseClient:', this.supabaseClient);
+    // console.log('supabaseClient:', this.supabaseClient);
   }
 
 

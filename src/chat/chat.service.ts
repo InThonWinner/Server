@@ -100,7 +100,30 @@ export class ChatService {
       throw new ForbiddenException('Access denied');
     }
 
-    // 2. 사용자 메시지 저장
+    // 2. 첫 메시지인지 확인하고 제목 생성
+    const isFirstMessage = session.messages.length === 0;
+    if (isFirstMessage && !session.title) {
+      // 비동기로 제목 생성 (메시지 전송을 블로킹하지 않음)
+      this.aiService
+        .generateTitle(dto.content)
+        .then((title) => {
+          console.log('Generated title:', title);
+          return this.prisma.chatSession.update({
+            where: { id: sessionId },
+            data: { title },
+          });
+        })
+        .catch((error) => {
+          console.error('Failed to generate title:', error);
+          // 실패 시 첫 15자를 제목으로 사용
+          return this.prisma.chatSession.update({
+            where: { id: sessionId },
+            data: { title: dto.content.slice(0, 15) },
+          });
+        });
+    }
+
+    // 3. 사용자 메시지 저장
     const userMessage = await this.prisma.chatMessage.create({
       data: {
         sessionId,
@@ -109,7 +132,7 @@ export class ChatService {
       },
     });
 
-    // 3. AI 서버에 요청
+    // 4. AI 서버에 요청
     const conversationHistory = session.messages.map((msg) => ({
       role: msg.role.toLowerCase(),
       content: msg.content,
@@ -122,7 +145,7 @@ export class ChatService {
       history: conversationHistory,
     });
 
-    // 4. AI 응답 저장
+    // 5. AI 응답 저장
     const assistantMessage = await this.prisma.chatMessage.create({
       data: {
         sessionId,
@@ -131,7 +154,7 @@ export class ChatService {
       },
     });
 
-    // 5. 세션 업데이트 (updatedAt)
+    // 6. 세션 업데이트 (updatedAt)
     await this.prisma.chatSession.update({
       where: { id: sessionId },
       data: {
@@ -139,7 +162,7 @@ export class ChatService {
       },
     });
 
-    // 6. 두 메시지 모두 반환
+    // 7. 두 메시지 모두 반환
     return {
       userMessage,
       assistantMessage,

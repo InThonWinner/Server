@@ -27,6 +27,7 @@ const validationSchema = Joi.object({
   }),
   SUPABASE_BUCKET_NAME: Joi.string().optional().default('auth-image'),
   AI_SERVER_URL: Joi.string().uri().optional().default('http://localhost:8000'),
+  GEMINI_API_KEY: Joi.string().optional().default(''),
 });
 
 export default validationSchema;
