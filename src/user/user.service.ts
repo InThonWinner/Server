@@ -6,6 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { AuthService } from '../auth/auth.service';
+import { SupabaseStorageService } from '../supabase/supabase-storage.service';
 import { User, VerificationStatus } from '@prisma/client';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -15,9 +16,10 @@ export class UserService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly authService: AuthService,
+    private readonly supabaseStorage: SupabaseStorageService,
   ) {}
 
-  async register(registerDto: RegisterDto) {
+  async register(registerDto: RegisterDto, verificationImage: Express.Multer.File) {
     // 이메일 중복 확인
     const existingUser = await this.prisma.user.findUnique({
       where: { email: registerDto.email },
@@ -32,7 +34,8 @@ export class UserService {
       registerDto.password,
     );
 
-    // 사용자 생성
+    // 임시 userId 생성 (실제로는 생성 후 userId를 얻어야 함)
+    // 먼저 사용자를 생성하고, 이미지 업로드 후 URL을 업데이트
     const user = await this.prisma.user.create({
       data: {
         email: registerDto.email,
@@ -45,20 +48,32 @@ export class UserService {
         role: registerDto.role,
         verificationStatus: VerificationStatus.PENDING,
       },
-      select: {
-        id: true,
-        email: true,
-        nickname: true,
-        verificationStatus: true,
-      },
     });
 
-    return {
-      userId: user.id,
-      email: user.email,
-      nickname: user.nickname,
-      verificationStatus: user.verificationStatus,
-    };
+    try {
+      // 인증 이미지 업로드
+      const imageUrl = await this.supabaseStorage.uploadVerificationImage(
+        verificationImage,
+        user.id,
+      );
+
+      // 이미지 URL 업데이트
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { verificationImageUrl: imageUrl },
+      });
+
+      return {
+        userId: user.id,
+        email: user.email,
+        nickname: user.nickname,
+        verificationStatus: user.verificationStatus,
+      };
+    } catch (error) {
+      // 이미지 업로드 실패 시 생성된 사용자 삭제
+      await this.prisma.user.delete({ where: { id: user.id } });
+      throw error;
+    }
   }
 
   async login(loginDto: LoginDto) {

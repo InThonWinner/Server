@@ -33,5 +33,6 @@ EXPOSE 8080
 ENV NODE_ENV=production
 
 # Use node directly instead of npm for better signal handling
-CMD ["node", "dist/src/main.js"]
+# CMD ["node", "dist/src/main.js"]
+CMD ["node", "dist/main.js"]
 

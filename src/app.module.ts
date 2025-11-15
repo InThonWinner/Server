@@ -9,6 +9,7 @@ import { PortfolioModule } from './portfolio/portfolio.module';
 import { ChatModule } from './chat/chat.module';
 import { AiModule } from './ai/ai.module';
 import { PostModule } from './post/post.module';
+import { SupabaseModule } from './supabase/supabase.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { PostModule } from './post/post.module';
     ChatModule,
     AiModule,
     PostModule,
+    SupabaseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

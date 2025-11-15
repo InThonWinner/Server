@@ -22,7 +22,7 @@ export default () => ({
     accessTokenExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN ?? '1d',
   },
   supabase: {
-    url: process.env.DATABASE_URL ?? '',
+    url: process.env.SUPABASE_URL ?? '',
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
     bucketName: process.env.SUPABASE_BUCKET_NAME ?? 'auth-image',
   },
