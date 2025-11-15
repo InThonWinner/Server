@@ -87,27 +87,24 @@ export class ChatService {
       include: {
         messages: {
           orderBy: { createdAt: 'asc' },
-          take: 10, // 최근 10개만 AI 서버에 전달
         },
       },
     });
-
+  
     if (!session) {
       throw new NotFoundException('Session not found');
     }
-
+  
     if (session.userId !== userId) {
       throw new ForbiddenException('Access denied');
     }
-
+  
     // 2. 첫 메시지인지 확인하고 제목 생성
     const isFirstMessage = session.messages.length === 0;
     if (isFirstMessage && !session.title) {
-      // 비동기로 제목 생성 (메시지 전송을 블로킹하지 않음)
       this.aiService
         .generateTitle(dto.content)
         .then((title) => {
-          console.log('Generated title:', title);
           return this.prisma.chatSession.update({
             where: { id: sessionId },
             data: { title },
@@ -115,14 +112,13 @@ export class ChatService {
         })
         .catch((error) => {
           console.error('Failed to generate title:', error);
-          // 실패 시 첫 15자를 제목으로 사용
           return this.prisma.chatSession.update({
             where: { id: sessionId },
             data: { title: dto.content.slice(0, 15) },
           });
         });
     }
-
+  
     // 3. 사용자 메시지 저장
     const userMessage = await this.prisma.chatMessage.create({
       data: {
@@ -131,20 +127,10 @@ export class ChatService {
         content: dto.content,
       },
     });
-
-    // 4. AI 서버에 요청
-    const conversationHistory = session.messages.map((msg) => ({
-      role: msg.role.toLowerCase(),
-      content: msg.content,
-    }));
-
-    const aiResponse = await this.aiService.chat({
-      session_id: sessionId,
-      user_id: userId,
-      message: dto.content,
-      history: conversationHistory,
-    });
-
+  
+    // 4. AI 서버에 질문만 전송 (FastAPI는 RAG로 컨텍스트 관리)
+    const aiResponse = await this.aiService.chat(dto.content);
+  
     // 5. AI 응답 저장
     const assistantMessage = await this.prisma.chatMessage.create({
       data: {
@@ -153,21 +139,20 @@ export class ChatService {
         content: aiResponse.answer,
       },
     });
-
-    // 6. 세션 업데이트 (updatedAt)
+  
+    // 6. 세션 업데이트
     await this.prisma.chatSession.update({
       where: { id: sessionId },
-      data: {
-        updatedAt: new Date(),
-      },
+      data: { updatedAt: new Date() },
     });
-
+  
     // 7. 두 메시지 모두 반환
     return {
       userMessage,
       assistantMessage,
+      sources: aiResponse.sources, // RAG 출처 정보도 함께 반환
     };
-  }
+  }  
 
   // 세션 삭제
   async deleteSession(sessionId: number, userId: number) {
