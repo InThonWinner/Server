@@ -65,14 +65,16 @@ model Portfolio {
   user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   displayNameType       DisplayNameType @default(NICKNAME)
-  contactPublic         Boolean         @default(false)
-  affiliationPublic     Boolean         @default(false)
+  contact               Json?
+  affiliation           String?
   
   techStack             String?
   career                String?
   projects              String?
   activitiesAwards      String?
   
+  showContact           Boolean         @default(false)
+  showAffiliation       Boolean         @default(false)
   showTechStack         Boolean         @default(true)
   showCareer            Boolean         @default(true)
   showProjects          Boolean         @default(true)
