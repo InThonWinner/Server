@@ -12,6 +12,14 @@ import { PostCategory } from '@prisma/client';
 export class PostService {
   constructor(private readonly postRepository: PostRepository) {}
 
+  async findPostById(id: number) {
+    const post = await this.postRepository.findById(id);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${id} not found`);
+    }
+    return post;
+  }
+
   async findAll(
     category?: PostCategory,
     skip?: number,

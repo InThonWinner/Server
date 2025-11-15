@@ -71,6 +71,22 @@ export class PostController {
     return this.postService.findAll(category, skip, take);
   }
 
+  @Get(':id')
+  @ApiOperation({
+    summary: 'Get a post by ID',
+    description: 'Retrieve a single post by its ID.',
+  })
+  @ApiParam({
+    name: 'id',
+    type: Number,
+  })
+  findPostById(
+    @Param('id', ParseIntPipe) id: number,
+  ) {
+    return this.postService.findPostById(id);
+  }
+  
+
   @Post()
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
