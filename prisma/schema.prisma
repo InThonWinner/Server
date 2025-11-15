@@ -110,6 +110,7 @@ model ChatSession {
   id        Int           @id @default(autoincrement())
   userId    Int
   user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String?
   
   messages  ChatMessage[]
   

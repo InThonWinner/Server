@@ -28,6 +28,7 @@ export default () => ({
   },
   ai: {
     serverUrl: process.env.AI_SERVER_URL ?? 'http://localhost:8000',
+    geminiApiKey: process.env.GEMINI_API_KEY ?? '',
   },
 });
 
