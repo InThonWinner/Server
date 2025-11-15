@@ -24,6 +24,7 @@
     "deploy": "node scripts/deploy.js"
   },
   "dependencies": {
+    "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.1",
@@ -36,6 +37,7 @@
     "@supabase/supabase-js": "^2.81.1",
     "@types/bcrypt": "^6.0.0",
     "@types/passport-jwt": "^4.0.1",
+    "axios": "^1.13.2",
     "bcrypt": "^6.0.0",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",

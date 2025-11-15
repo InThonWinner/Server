@@ -8,6 +8,8 @@ import { HealthModule } from './health/health.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
+import { ChatModule } from './chat/chat.module';
+import { AiModule } from './ai/ai.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { PortfolioModule } from './portfolio/portfolio.module';
     AuthModule,
     UserModule,
     PortfolioModule,
+    ChatModule,
+    AiModule,
   ],
   controllers: [AppController],
   providers: [AppService],

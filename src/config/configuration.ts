@@ -26,5 +26,8 @@ export default () => ({
     serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY ?? '',
     bucketName: process.env.SUPABASE_BUCKET_NAME ?? 'auth-image',
   },
+  ai: {
+    serverUrl: process.env.AI_SERVER_URL ?? 'http://localhost:8000',
+  },
 });
 

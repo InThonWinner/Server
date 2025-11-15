@@ -34,6 +34,11 @@ enum PostCategory {
   ETC         // 기타
 }
 
+enum MessageRole {
+  USER
+  ASSISTANT
+}
+
 // ===== Models =====
 
 model User {
@@ -119,6 +124,7 @@ model ChatMessage {
   sessionId Int
   session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   
+  role      MessageRole
   content   String
   createdAt DateTime    @default(now())
 

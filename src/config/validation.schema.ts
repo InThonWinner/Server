@@ -26,6 +26,7 @@ const validationSchema = Joi.object({
     'any.required': 'SUPABASE_SERVICE_ROLE_KEY 환경 변수가 필요합니다.',
   }),
   SUPABASE_BUCKET_NAME: Joi.string().optional().default('auth-image'),
+  AI_SERVER_URL: Joi.string().uri().optional().default('http://localhost:8000'),
 });
 
 export default validationSchema;
