@@ -52,13 +52,7 @@ export class AiController {
     @Req() req: Request & { user: User },
     @Body() dto: AiChatRequestDto,
   ) {
-    // 사용자 ID를 자동으로 설정
-    const request: AiChatRequestDto = {
-      ...dto,
-      user_id: req.user.id,
-    };
-
-    return this.aiService.chat(request);
+    return this.aiService.chat(dto.question);
   }
 }
 
