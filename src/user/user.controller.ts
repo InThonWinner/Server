@@ -7,7 +7,11 @@ import {
   HttpCode,
   HttpStatus,
   Req,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { Request } from 'express';
 import {
   ApiTags,
@@ -15,6 +19,7 @@ import {
   ApiResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiConsumes,
 } from '@nestjs/swagger';
 
 import { UserService } from './user.service';
@@ -30,45 +35,50 @@ export class UserController {
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FileInterceptor('verificationImage'))
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: '회원가입' })
-  @ApiBody({ type: RegisterDto })
-  @ApiResponse({
-    status: 201,
-    description: '회원가입 성공',
+  @ApiBody({
     schema: {
       type: 'object',
+      required: ['email', 'password', 'realName', 'nickname', 'role', 'verificationImage'],
       properties: {
-        success: { type: 'boolean', example: true },
-        message: { type: 'string', example: '회원가입이 완료되었습니다.' },
-        data: {
-          type: 'object',
-          properties: {
-            userId: { type: 'number', example: 1 },
-            email: { type: 'string', example: 'student@korea.ac.kr' },
-            nickname: { type: 'string', example: '닉네임' },
-            verificationStatus: { type: 'string', example: 'PENDING' },
-          },
+        email: { type: 'string', example: 'student@korea.ac.kr' },
+        password: { type: 'string', example: 'password123' },
+        realName: { type: 'string', example: '홍길동' },
+        nickname: { type: 'string', example: '닉네임' },
+        phone: { type: 'string', example: '010-1234-5678' },
+        studentId: { type: 'string', example: '2022123456' },
+        affiliation: { type: 'string', example: 'KU 컴퓨터학과 22' },
+        role: { type: 'string', enum: ['STUDENT', 'ALUMNI', 'ADMIN'], example: 'STUDENT' },
+        verificationImage: {
+          type: 'string',
+          format: 'binary',
+          description: '학생증 또는 재학증명서 이미지 (jpg, jpeg, png, pdf)',
         },
       },
     },
   })
   @ApiResponse({
-    status: 400,
-    description: '이미 존재하는 이메일',
-    schema: {
-      type: 'object',
-      properties: {
-        success: { type: 'boolean', example: false },
-        message: { type: 'string', example: '이미 존재하는 이메일입니다.' },
-        error: { type: 'string', example: 'EMAIL_ALREADY_EXISTS' },
-      },
-    },
+    status: 201,
+    description: '회원가입 성공',
   })
-  async register(@Body() registerDto: RegisterDto) {
-    const data = await this.userService.register(registerDto);
+  @ApiResponse({
+    status: 400,
+    description: '잘못된 요청 (이미지 누락, 이메일 중복 등)',
+  })
+  async register(
+    @Body() registerDto: RegisterDto,
+    @UploadedFile() verificationImage: Express.Multer.File,
+  ) {
+    if (!verificationImage) {
+      throw new BadRequestException('학생 인증 이미지를 업로드해주세요.');
+    }
+
+    const data = await this.userService.register(registerDto, verificationImage);
     return {
       success: true,
-      message: '회원가입이 완료되었습니다.',
+      message: '회원가입이 완료되었습니다. 관리자 승인 후 서비스를 이용하실 수 있습니다.',
       data,
     };
   }
