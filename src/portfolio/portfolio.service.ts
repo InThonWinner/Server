@@ -5,7 +5,9 @@ import { UpdateTechStackDto } from './dto/update-tech-stack.dto';
 import { UpdateCareerDto } from './dto/update-career.dto';
 import { UpdateProjectsDto } from './dto/update-projects.dto';
 import { UpdateActivitiesAwardsDto } from './dto/update-activities-awards.dto';
-import { UpdateSettingsDto } from './dto/update-settings.dto';
+import { UpdateDisplayNameDto } from './dto/update-displayname.dto';
+import { UpdateContactDto } from './dto/update-contact.dto';
+import { UpdateAffiliationDto } from './dto/update-affiliation.dto';
 
 @Injectable()
 export class PortfolioService {
@@ -35,13 +37,36 @@ export class PortfolioService {
 
 
   // Update Logic
-  async updateSettings(userId: number, dto: UpdateSettingsDto) {
+  async updateDisplayName(userId: number, dto: UpdateDisplayNameDto) {
     await this.create(userId);
+    
     return this.portfolioRepository.updatePortfolio(userId, {
       displayNameType: dto.displayNameType,
-      contact: dto.contact,
-      affiliation: dto.affiliation,
+    });
+  }
+  
+  async updateContact(userId: number, dto: UpdateContactDto) {
+    await this.create(userId);
+    
+    // Convert contact array to Prisma JSON format
+    let contact: Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined;
+    if (dto.contact === null) {
+      contact = Prisma.JsonNull;
+    } else if (dto.contact !== undefined) {
+      contact = dto.contact as unknown as Prisma.InputJsonValue;
+    }
+    
+    return this.portfolioRepository.updatePortfolio(userId, {
+      contact,
       showContact: dto.showContact,
+    });
+  }
+
+  async updateAffiliation(userId: number, dto: UpdateAffiliationDto) {
+    await this.create(userId);
+    
+    return this.portfolioRepository.updatePortfolio(userId, {
+      affiliation: dto.affiliation,
       showAffiliation: dto.showAffiliation,
     });
   }
