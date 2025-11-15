@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { PortfolioModule } from './portfolio/portfolio.module';
 import { ChatModule } from './chat/chat.module';
 import { AiModule } from './ai/ai.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { AiModule } from './ai/ai.module';
     PortfolioModule,
     ChatModule,
     AiModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [AppService],
