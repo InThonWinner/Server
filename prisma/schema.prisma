@@ -8,29 +8,117 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-
-model Category {
-  id          String    @id @default(uuid())
-  name        String    @unique
-  description String?
-  products    Product[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+// ===== Enums =====
+enum UserRole {
+  STUDENT
+  ALUMNI
+  ADMIN
 }
 
-model Product {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
-  price       Decimal   @db.Decimal(10, 2)
-  stock       Int       @default(0)
-  categoryId  String
-  category    Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-
-  @@index([categoryId])
-  @@index([isActive])
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
+enum DisplayNameType {
+  REAL_NAME
+  NICKNAME
+}
+
+enum PostCategory {
+  STUDY_PATH  // 진로/공부 방향
+  COURSE      // 수업/과목 관련
+  PROJECT     // 프로젝트/활동
+  CAREER      // 취업/인턴
+  ETC         // 기타
+}
+
+// ===== Models =====
+
+model User {
+  id                    Int                @id @default(autoincrement())
+  email                 String             @unique
+  passwordHash          String
+  realName              String
+  nickname              String
+  phone                 String?
+  role                  UserRole           @default(STUDENT)
+  studentId             String?
+  affiliation           String?
+  verificationStatus    VerificationStatus @default(PENDING)
+  verificationImageUrl  String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  portfolio             Portfolio?
+  posts                 Post[]
+  chatSessions          ChatSession[]
+
+  @@index([email])
+  @@index([studentId])
+}
+
+model Portfolio {
+  id                    Int             @id @default(autoincrement())
+  userId                Int             @unique
+  user                  User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  displayNameType       DisplayNameType @default(NICKNAME)
+  contactPublic         Boolean         @default(false)
+  affiliationPublic     Boolean         @default(false)
+  
+  techStack             String?
+  career                String?
+  projects              String?
+  activitiesAwards      String?
+  
+  showTechStack         Boolean         @default(true)
+  showCareer            Boolean         @default(true)
+  showProjects          Boolean         @default(true)
+  showActivitiesAwards  Boolean         @default(true)
+  
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+}
+
+model Post {
+  id          Int          @id @default(autoincrement())
+  authorId    Int
+  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  category    PostCategory
+  title       String?
+  content     String
+  isAnonymous Boolean      @default(true)
+  
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([authorId])
+  @@index([category])
+}
+
+model ChatSession {
+  id        Int           @id @default(autoincrement())
+  userId    Int
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  messages  ChatMessage[]
+  
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model ChatMessage {
+  id        Int         @id @default(autoincrement())
+  sessionId Int
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  
+  content   String
+  createdAt DateTime    @default(now())
+
+  @@index([sessionId])
+}
