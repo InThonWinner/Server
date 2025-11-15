@@ -37,9 +37,18 @@ export class PortfolioService {
   // Update Logic
   async updateSettings(userId: number, dto: UpdateSettingsDto) {
     await this.create(userId);
+    
+    // Convert contact array to Prisma JSON format
+    let contact: Prisma.InputJsonValue | typeof Prisma.JsonNull | undefined;
+    if (dto.contact === null) {
+      contact = Prisma.JsonNull;
+    } else if (dto.contact !== undefined) {
+      contact = dto.contact as unknown as Prisma.InputJsonValue;
+    }
+    
     return this.portfolioRepository.updatePortfolio(userId, {
       displayNameType: dto.displayNameType,
-      contact: dto.contact,
+      contact,
       affiliation: dto.affiliation,
       showContact: dto.showContact,
       showAffiliation: dto.showAffiliation,

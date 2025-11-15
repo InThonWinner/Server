@@ -10,18 +10,23 @@ import {
   ParseIntPipe,
   ParseEnumPipe,
   DefaultValuePipe,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import {
   ApiTags,
   ApiOperation,
   ApiResponse,
   ApiQuery,
   ApiParam,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostCategory } from '@prisma/client';
+import { PostCategory, User } from '@prisma/client';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @ApiTags('posts')
 @Controller('posts')
@@ -67,15 +72,11 @@ export class PostController {
   }
 
   @Post()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Create a post',
-    description: 'Create a new post. Supports both anonymous and non-anonymous posts.',
-  })
-  @ApiQuery({
-    name: 'authorId',
-    type: Number,
-    description: 'Author ID',
-    required: true,
+    description: 'Create a new post. Requires authentication. Supports both anonymous and non-anonymous posts.',
   })
   @ApiResponse({
     status: 201,
@@ -85,32 +86,36 @@ export class PostController {
     status: 400,
     description: 'Invalid request data',
   })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
+  })
   create(
     @Body() createPostDto: CreatePostDto,
-    @Query('authorId', ParseIntPipe) authorId: number,
+    @Req() req: Request & { user: User },
   ) {
-    return this.postService.create(authorId, createPostDto);
+    return this.postService.create(req.user.id, createPostDto);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Update a post',
-    description: 'Update a post. Only the author can update their own posts.',
+    description: 'Update a post. Requires authentication. Only the author can update their own posts.',
   })
   @ApiParam({
     name: 'id',
     type: Number,
     description: 'Post ID to update',
   })
-  @ApiQuery({
-    name: 'authorId',
-    type: Number,
-    description: 'Author ID (for permission check)',
-    required: true,
-  })
   @ApiResponse({
     status: 200,
     description: 'Post updated successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
     status: 403,
@@ -122,31 +127,31 @@ export class PostController {
   })
   update(
     @Param('id', ParseIntPipe) id: number,
-    @Query('authorId', ParseIntPipe) authorId: number,
     @Body() updatePostDto: UpdatePostDto,
+    @Req() req: Request & { user: User },
   ) {
-    return this.postService.update(id, authorId, updatePostDto);
+    return this.postService.update(id, req.user.id, updatePostDto);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   @ApiOperation({
     summary: 'Delete a post',
-    description: 'Delete a post. Only the author can delete their own posts.',
+    description: 'Delete a post. Requires authentication. Only the author can delete their own posts.',
   })
   @ApiParam({
     name: 'id',
     type: Number,
     description: 'Post ID to delete',
   })
-  @ApiQuery({
-    name: 'authorId',
-    type: Number,
-    description: 'Author ID (for permission check)',
-    required: true,
-  })
   @ApiResponse({
     status: 200,
     description: 'Post deleted successfully',
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized',
   })
   @ApiResponse({
     status: 403,
@@ -158,9 +163,9 @@ export class PostController {
   })
   remove(
     @Param('id', ParseIntPipe) id: number,
-    @Query('authorId', ParseIntPipe) authorId: number,
+    @Req() req: Request & { user: User },
   ) {
-    return this.postService.remove(id, authorId);
+    return this.postService.remove(id, req.user.id);
   }
 }
 
