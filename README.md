@@ -1,4 +1,7 @@
-# KU Student Growth Assistant - Server
+# KUnnect - Server
+
+<img width="1746" height="1268" alt="image" src="https://github.com/user-attachments/assets/4c38b40d-2720-4649-8ffd-38de0b2c0291" />
+
 
 Backend API for the KU Student Growth Assistant application, built with NestJS, Prisma, and PostgreSQL (Supabase). This application provides personalized guidance for students through AI-powered chat, portfolio management, and community posts.
 
