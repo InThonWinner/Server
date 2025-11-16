@@ -31,9 +31,10 @@ export class AiService {
           `${this.aiServerUrl}/chat`,
           { question }, // FastAPI가 기대하는 형식
           {
-            timeout: 90000,
+            timeout: 30000,
             headers: {
               'Content-Type': 'application/json',
+              'Connection': 'keep-alive',
             },
             // SSL 검증 비활성화 (테스트용)
             httpsAgent: new https.Agent({
