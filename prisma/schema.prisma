@@ -90,20 +90,35 @@ model Portfolio {
 }
 
 model Post {
-  id          Int          @id @default(autoincrement())
+  id          Int             @id @default(autoincrement())
   authorId    Int
-  author      User         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  author      User            @relation(fields: [authorId], references: [id], onDelete: Cascade)
   
   category    PostCategory
   title       String?
   content     String
-  isAnonymous Boolean      @default(true)
+  isAnonymous Boolean         @default(true)
   
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  embedding   PostEmbedding?
 
   @@index([authorId])
   @@index([category])
+}
+
+model PostEmbedding {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @unique
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  embedding Json
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([postId])
 }
 
 model ChatSession {
