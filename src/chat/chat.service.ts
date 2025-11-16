@@ -146,9 +146,8 @@ export class ChatService {
       data: { updatedAt: new Date() },
     });
   
-    // 7. 두 메시지 모두 반환
+    // 7. AI 응답만 반환 (사용자 메시지는 프론트엔드에서 이미 표시됨)
     return {
-      userMessage,
       assistantMessage,
       sources: aiResponse.sources, // RAG 출처 정보도 함께 반환
     };
